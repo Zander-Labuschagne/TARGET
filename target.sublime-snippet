@@ -1,6 +1,0 @@
-<snippet>
-    <content><![CDATA[<eq>$0</eq>]]></content>
-    <tabTrigger>eq</tabTrigger>
-    <scope>text.html</scope>
-    <description>eq tag to be rendered by MathJax</description>
-</snippet>
