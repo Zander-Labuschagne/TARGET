@@ -8,7 +8,7 @@ Thrustmaster T.A.R.G.E.T. for Sublime Text 3 and 4.
 
 *PS: This is my first editor plugin/addon/package*
 
-Things I'd like to work on:
+### Things I'd like to work on:
 * Improve syntax highlighting for user defined functions and variables. <-- Might try and copy from C syntax file.
 * USB keycode autocompletion? Maybe? What do you think?
 * Comments autocompletion e.g.: `MapKey(&Joystick, TG1, SPC); // First Stage Trigger : Engage PAC`
