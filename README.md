@@ -1,6 +1,6 @@
 # TARGET - Thrustmaster Advanced pRogramming Graphical EdiTor
 
-Thrustmaster T.A.R.G.E.T. for Sublime Text 3.
+Thrustmaster T.A.R.G.E.T. for Sublime Text 3 and 4.
 
 ## Features:
 * Syntax highlighting that is in my opinion an improvement over the proprietary editor, let me know if you don't agree.
