@@ -248,7 +248,7 @@
 	{ "trigger": "include\tinclude \"target.tmh\"", "contents": "include \"${0:target}.tmh\"" },
 	{ "trigger": "include\tinclude \".ttm\"", "contents": "include \"$0.ttm\"" },
 	// { "trigger": "define\tDefine macro", "contents": "define ${1:/*macro_name*/} ${0:/*keystroke_combo*/}" },
-	{ "trigger": "define\tDefine macro", "contents": "define ${1:/*macro_name*/} ${2:/*keystroke_combo*/}		// ${0:description}" },
+	{ "trigger": "define\tDefine macro", "contents": "define ${1:/*macro_name*/} ${2:/*keystroke_combo*/}" },
 
 // Functions
 	{ "trigger": "SetKBRate\t(duration_ms, delay_ms)", "contents": "SetKBRate(${1:/*int: duration*/}, ${0:/*int: delay*/}); // PULSE is $1 ms, D() is $0 ms" },
