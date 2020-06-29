@@ -1,0 +1,356 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+file_extensions:
+  - tmc
+  - tmh
+  - ttm
+scope: source.tmc
+name: T.A.R.G.E.T. Script
+first_line_match: include '"'target.tmh'"'
+
+variables:
+  reservedFunctions: '(?:Configure|Init|EventHandle|SetKBRate|SetKBLayout|DefaultMapping|MapAxis|MapKey|MapKeyIO|MapKeyUMD|MapKeyIOUMD|MapKeyR|MapKeyRIO|MapKeyRUMD|MapKeyRIOUMD|RotateDXAxis|ActKey|KeyAxis|LockAxis|SetShiftButton|SetSCurve|SetJCurve|SetCustomCurve|TrimDXAxis|printf|DeferCall)'
+  reservedSubFunctions: '(?:LED|TEMPO|CHAIN|D|SEQ|LIST|AXIS|SET|AXMAP1|AXMAP2)'
+  reference: '(?:Joystick|JoystickF18|HCougar|JoystickF18|T16000|T16000L|Throttle|TWCSThrottle|TFRPHARudder|TFRPRudder|LMFD|RMFD)'
+  definedDirectX: '(?:DX_X_AXIS|DX_Y_AXIS|DX_Z_AXIS|DX_XROT_AXIS|DX_YROT_AXIS|DX_ZROT_AXIS|DX_SLIDER_AXIS|DX_THROTTLE_AXIS|DXHATUP|DXHATUPRIGHT|DXHATRIGHT|DXHATDOWNRIGHT|DXHATDOWN|DXHATDOWNLEFT|DXHATLEFT|DXHATUPLEFT)'
+  defined: '(?:JOYX|JOYY|MOUSE_X_AXIS|MOUSE_Y_AXIS|AXIS_NORMAL|AXIS_REVERSED|MAP_ABSOLUTE|MAP_RELATIVE|LED_ONOFF|LED_INTENSITY)'
+  definedKeys: '(?:L_CTL|R_CTL|L_SHIFT|R_SHIFT|L_ALT|R_ALT|L_WIN|R_WIN|ESC|PRNTSCRN|SCRLCK|BRK|BSP|TAB|ENT|SPC|INS|HOME|PGUP|DEL|END|PGDN|UARROW|DARROW|LARROW|RARROW|NUML|KPENT|})'
+  definedA10: '(?:THR_LEFT|THR_RIGHT|SCX|SCY|THR_FC|TG1|TG2|S1|S2|S3|S4|H1U|H1D|H1L|H1R|H2U|H2D|H2L|H2R|H3U|H3D|H3L|H3R|H4P|H4U|H4D|H4L|H4R|FLAPU|FLAPM|FLAPD|EACON|EACOFF|RDRNRM|RDRDIS|APENG|APDIS|APPAT|APAH|APALT|LDGH|EOLIGN|EORIGN|EOLNORM|EORNORM|EOLMOTOR|EORMOTOR|EFLNORM|EFRNORM|EFLOVER|EFROVER|CHF|CHM|CHB|BSF|BSM|BSB|SPDF|SPDM|SPDB|MSP|MSU|MSD|MSL|MSR|CSU|CSD|CSL|CSR|SC|LTB|PSF|PSM|PSB|APUON|APUOFF|IDLELON|IDLERON)'
+  definedF16: '(?:RUDDER|THROTTLE|RDR_X|RDR_Y|MAN_RNG|ANT_ELEV)'
+  definedT16000M: '(?:RUDDER|THROTTLE)'
+  definedOther: '(?:MODE_EXCLUDED|KB_ENG)'
+  basic_types: 'asm|__asm__|auto|bool|_Bool|char|_Complex|double|float|_Imaginary|int|long|short|signed|unsigned|void|alias'
+  control_keywords: 'break|case|continue|default|do|else|for|goto|if|_Pragma|return|switch|while'
+  tm_keywords: 'PULSE|KEYON|LOCK|DOWN|UP|LED_CURRENT|CURRENT|IOTOGGLE|UDTOGGLE|MODE_EXCLUDED'
+  identifier: \b[[:alpha:]_][[:alnum:]_]*\b # upper and lowercase
+  before_tag: 'struct|union|enum'
+
+contexts:
+  # The prototype context is prepended to all contexts but those setting
+  # meta_include_prototype: false.
+  prototype:
+    - include: comment
+
+  main:
+    # The main context is the initial starting point of our syntax.
+    # Include other contexts from here (or specify them directly).
+    - include: keyword
+    - include: number
+    - include: late-expressions
+    - include: operators
+    - include: access-illegal
+    - include: types
+    - include: variables
+    - include: constants
+    - include: block
+
+    - match: \'
+      push: character
+    # # - match: '"'
+    #   # push: statement
+
+    - match: EXEC\(\"
+      scope: constant.language.tmc
+      embed: main
+      escape: \"\)
+      escape_captures:
+        0: constant.language.tmc
+      # push: Packages/C++/C.sublime-syntax
+      # with_prototype:
+        # - match: \"\)
+          # scope: constant.language.tmc
+          # pop: true
+
+    # - match: (REXEC\()(\d),\s*[(\d)(\w)]+,\s*(\")
+    - match: (REXEC\()(\d),\s*(\d+),\s*(\")
+      captures:
+        1: constant.language.tmc
+        2: constant.language.tmc
+        3: constant.language.tmc
+        4: constant.language.tmc
+        5: constant.language.tmc
+      # scope: constant.language.tmc
+      embed: main
+      escape: \"\)
+      escape_captures:
+        0: constant.language.tmc
+      # push: Packages/C++/C.sublime-syntax
+      # with_prototype:
+      #   - match: \"\)
+      #     scope: constant.language.tmc
+      #     pop: true
+
+    - match: system\(\"
+      scope: constant.language.tmc
+      push: Packages/Batch File/Batch File.sublime-syntax
+      with_prototype:
+        - match: \"\)
+          scope: constant.language.tmc
+          pop: true
+
+    - match: \b({{reservedFunctions}})\b
+      scope: variable.function.tmc
+
+    - match: \b({{reservedSubFunctions}})\b
+      scope: variable.language.tmc
+
+    - match: \b({{definedKeys}}|{{definedDirectX}})\b|F[1-1][0-2]|F[1-9]|DX[3-3][0-2]|DX[1-2][0-9]|DX[1-9]|KP[0-9]
+      scope: variable.parameter.tmc
+
+    - match: USB\[0x[0-9][0-9]\]
+      scope: variable.parameter.tmc
+
+    - match: \b({{defined}}|{{definedA10}}|{{definedF16}}|{{definedT16000M}}|{{definedOther}})\b|LED[1-5]
+      scope: storage.type.struct.tmc
+
+
+    - match: \b({{reference}})\b
+      scope: variable.language.tmc
+
+    - match: \"
+      push: string
+    # - include: string
+
+    - match: \(
+      push: parenthesis
+    - match: \)
+      scope: invalid.illegal.stray-bracket-end
+
+    - match: \[
+      push: brackets
+    - match: \]
+      scope: invalid.illegal.stray-bracket-end
+
+    - match: \{
+      push: braces
+    - match: \}
+      scope: invalid.illegal.stray-bracket-end
+
+    - match: \<
+      push: tribracket
+    - match: \>
+      scope: invalid.illegal.stray-bracket-end
+
+    - match: "^\\s*\\b(include)\\b|^\\s*\\b(define)\\b"
+      # captures:
+        # 1: meta.preprocessor.c++
+        # 1: keyword.control.include.tmc
+      scope: keyword.control.include.tmc
+
+  keyword:
+    # Keywords are if, else for and while.
+    # Note that blackslashes don't need to be escaped within single quoted
+    # strings in YAML. When using single quoted strings, only single quotes
+    # need to be escaped: this is done by using two single quotes next to each
+    # other.
+    - match: '\b({{control_keywords}}|{{tm_keywords}})\b'
+      scope: keyword.control.tmc
+
+  number:
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric.tmc
+
+  string:
+    # - match: \"
+    - meta_scope: string.quoted.double.tmc
+      scope: punctuation.definition.string.begin
+    - match: \\xa|\\.
+      scope: constant.character.escape.tmc
+    - meta_include_prototype: false
+    - match: \"
+      scope: punctuation.definition.string.end
+      pop: true
+
+  character:
+    # Characters begin and end with single quotes
+    - meta_scope: string.quoted.single.tmc
+    - meta_include_prototype: false
+    - match: \'
+      pop: true
+
+  comment:
+    - match: ^/\* =(\s*.*?)\s*= \*/$\n?
+      scope: comment.block.tmc
+      captures:
+        1: meta.toc-list.banner.block.tmc
+    - match: /\*
+      scope: punctuation.definition.comment.begin
+      push:
+        - meta_scope: comment.block.tmc
+        - match: \*/
+          scope: punctuation.definition.comment.end
+          pop: true
+    - match: \*/(?!\*)
+      scope: invalid.illegal.stray-comment-end.tmc
+    - match: ^// =(\s*.*?)\s*=\s*$\n?
+      scope: comment.line.banner.tmc
+      captures:
+        1: meta.toc-list.banner.line.tmc
+    - match: //
+      scope: punctuation.definition.comment.tmc
+      push:
+        - meta_scope: comment.line.double-slash.tmc
+        - match: '(\\)$\n'
+          captures:
+            1: punctuation.separator.continuation.tmc
+        - match: \n
+          pop: true
+
+  late-expressions:
+    - match: ';'
+      scope: punctuation.terminator.tmc
+
+  operators:
+    - match: <<|>>|&|\|
+      scope: keyword.operator.arithmetic.tmc
+    - match: <\=|>\=|\=\=|<|>|\!\=
+      scope: keyword.operator.comparison.tmc
+    - match: \+|\-|/|%|\||\^|!
+      scope: keyword.operator.arithmetic.tmc
+    # This operator can be both arithmetic and pointer/address related
+    - match: \&
+      scope: keyword.operator.tmc
+    - match: \=
+      scope: keyword.operator.assignment.tmc
+
+  access-illegal:
+    - match: \.\.(?!\.)
+      scope: invalid.illegal.syntax.tmc
+
+  types:
+    - match: \b({{basic_types}})\b
+      scope: storage.type.tcm
+
+  parenthesis:
+    - match: \)
+      pop: true
+    - include: main
+
+  brackets:
+    - match: \]
+      pop: true
+    - include: main
+
+  braces:
+    - match: \}
+      pop: true
+    - include: main
+
+  tribracket:
+    - match: \>
+      pop: true
+    - include: main
+
+  expressions:
+    - include: early-expressions
+    - include: late-expressions
+
+  early-expressions:
+    - include: comment
+    - include: case-default
+    - include: access
+    - include: typedef
+    - include: keywords-parens
+    - include: keywords
+    - include: numbers
+    - include: operators
+    # - include: string
+    - include: parens
+    - include: parenthesis
+    - include: block
+    - include: variables
+    - include: constants
+    - match: ','
+      scope: punctuation.separator.tmc
+    - match: '\)|\}'
+      scope: invalid.illegal.stray-bracket-end.tmc
+
+  case-default:
+    - match: '\b(default|case)\b'
+      scope: keyword.control.tmc
+      push:
+        - match: ':'
+          scope: punctuation.separator.tmc
+          pop: true
+        - include: expressions
+
+  access:
+    - match: '(\.)({{identifier}})(?!\s*\()'
+      captures:
+        1: punctuation.accessor.tmc
+        2: variable.other.member.tmc
+    - include: access-illegal
+    - match: \.(?!\.)
+      scope: punctuation.accessor.tmc
+
+  typedef:
+    - match: \btypedef\b
+      scope: storage.type.tmc
+      push:
+        - match: ({{identifier}})?\s*(?=;)
+          captures:
+            1: entity.name.type.typedef.tmc
+          pop: true
+        - match: \b(struct)\s+({{identifier}})
+          captures:
+            1: storage.type.tmc
+        - include: expressions
+
+  keywords-parens:
+    - match: '\b(sizeof)\b\s*(\()'
+      captures:
+        1: keyword.operator.word.tmc
+        2: meta.group.c punctuation.section.group.begin.tmc
+      push:
+        - meta_content_scope: meta.group.c
+        - match: '\)'
+          scope: meta.group.c punctuation.section.group.end.tmc
+          pop: true
+        - include: expressions
+
+  numbers:
+    - match: '\b((0(x|X)[0-9a-fA-F]*(\.[0-9a-fA-F]+p-?\d+)?)|(([0-9]+\.?[0-9]*)|(\.[0-9]+))((e|E)(\+|-)?[0-9]+)?)([fF]|(l{1,2}|L{1,2})[uU]?|[uU](l{0,2}|L{0,2}))?\b'
+      scope: constant.numeric.tmc
+
+  parens:
+    - match: \(
+      scope: punctuation.section.group.begin.tmc
+      push:
+        - meta_scope: meta.group.tmc
+        - match: \)
+          scope: punctuation.section.group.end.tmc
+          pop: true
+        - include: expressions
+
+  block:
+    - match: '\{'
+      scope: punctuation.section.block.begin.tmc
+      push:
+        - meta_scope: meta.block.tmc
+        - match: (?=^\s*#\s*(elif|else|endif)\b)
+          pop: true
+        - match: '\}'
+          scope: punctuation.section.block.end.tmc
+          pop: true
+        - include: statements
+
+  statements:
+    - include: label
+    - include: expressions
+
+  label:
+    - match: '^\s*((?!default){{identifier}})(:)(?!:)'
+      captures:
+        1: entity.name.label.c
+        2: punctuation.separator.c
+
+  constants:
+    - match: \b(__func__|NULL|true|false|TRUE|FALSE)\b
+      scope: constant.language.tmc
+
+  variables:
+    - match: '\bg[A-Z]\w*\b'
+      scope: variable.other.readwrite.global.mac-classic.c
+    - match: '\bs[A-Z]\w*\b'
+      scope: variable.other.readwrite.static.mac-classic.c
