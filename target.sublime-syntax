@@ -7,6 +7,7 @@ file_extensions:
   - ttm
 scope: source.tmc
 name: T.A.R.G.E.T. Script
+comment: I don't really know what I'm doing in here but it seems to work. -- Zander
 first_line_match: include '"'target.tmh'"'
 
 variables:
@@ -42,27 +43,20 @@ contexts:
     - include: access-illegal
     - include: types
     - include: variables
-    - include: constants
     - include: block
 
     - match: \'
       push: character
-    # # - match: '"'
-    #   # push: statement
+      scope: punctuation.definition.character.begin
 
+# TODO: The EXEC function should have standard C++ syntax within its parenthesis.
     - match: EXEC\(\"
       scope: constant.language.tmc
       embed: main
       escape: \"\)
       escape_captures:
         0: constant.language.tmc
-      # push: Packages/C++/C.sublime-syntax
-      # with_prototype:
-        # - match: \"\)
-          # scope: constant.language.tmc
-          # pop: true
 
-    # - match: (REXEC\()(\d),\s*[(\d)(\w)]+,\s*(\")
     - match: (REXEC\()(\d),\s*(\d+),\s*(\")
       captures:
         1: constant.language.tmc
@@ -70,16 +64,10 @@ contexts:
         3: constant.language.tmc
         4: constant.language.tmc
         5: constant.language.tmc
-      # scope: constant.language.tmc
       embed: main
       escape: \"\)
       escape_captures:
         0: constant.language.tmc
-      # push: Packages/C++/C.sublime-syntax
-      # with_prototype:
-      #   - match: \"\)
-      #     scope: constant.language.tmc
-      #     pop: true
 
     - match: system\(\"
       scope: constant.language.tmc
@@ -98,44 +86,44 @@ contexts:
     - match: \b({{definedKeys}}|{{definedDirectX}})\b|F[1-1][0-2]|F[1-9]|DX[3-3][0-2]|DX[1-2][0-9]|DX[1-9]|KP[0-9]
       scope: variable.parameter.tmc
 
-    - match: USB\[0x[0-9][0-9]\]
+    - match: USB\[0x([0-9]|[A-F])([0-9]|[A-F])\]
       scope: variable.parameter.tmc
 
     - match: \b({{defined}}|{{definedA10}}|{{definedF16}}|{{definedT16000M}}|{{definedOther}})\b|LED[1-5]
       scope: storage.type.struct.tmc
-
 
     - match: \b({{reference}})\b
       scope: variable.language.tmc
 
     - match: \"
       push: string
-    # - include: string
+      scope: punctuation.definition.string.begin
 
     - match: \(
       push: parenthesis
+      scope: punctuation.section.group.begin.tmc
     - match: \)
       scope: invalid.illegal.stray-bracket-end
 
     - match: \[
       push: brackets
+      scope: punctuation.section.bracket.begin.tmc
     - match: \]
       scope: invalid.illegal.stray-bracket-end
 
     - match: \{
       push: braces
+      scope: punctuation.section.block.begin.tmc
     - match: \}
       scope: invalid.illegal.stray-bracket-end
 
     - match: \<
       push: tribracket
+      scope: punctuation.section.tribracket.end.tmc
     - match: \>
       scope: invalid.illegal.stray-bracket-end
 
-    - match: "^\\s*\\b(include)\\b|^\\s*\\b(define)\\b"
-      # captures:
-        # 1: meta.preprocessor.c++
-        # 1: keyword.control.include.tmc
+    - match: "\\b(include)\\b|\\b(define)\\b"
       scope: keyword.control.include.tmc
 
   keyword:
@@ -152,9 +140,7 @@ contexts:
       scope: constant.numeric.tmc
 
   string:
-    # - match: \"
     - meta_scope: string.quoted.double.tmc
-      scope: punctuation.definition.string.begin
     - match: \\xa|\\.
       scope: constant.character.escape.tmc
     - meta_include_prototype: false
@@ -167,6 +153,7 @@ contexts:
     - meta_scope: string.quoted.single.tmc
     - meta_include_prototype: false
     - match: \'
+      scope: punctuation.definition.character.end
       pop: true
 
   comment:
@@ -224,21 +211,25 @@ contexts:
 
   parenthesis:
     - match: \)
+      scope: punctuation.section.group.end.tmc
       pop: true
     - include: main
 
   brackets:
     - match: \]
+      scope: punctuation.section.bracket.end.tmc
       pop: true
     - include: main
 
   braces:
     - match: \}
+      scope: punctuation.section.block.end.tmc
       pop: true
     - include: main
 
   tribracket:
     - match: \>
+      scope: punctuation.section.tribracket.end.tmc
       pop: true
     - include: main
 
@@ -249,18 +240,11 @@ contexts:
   early-expressions:
     - include: comment
     - include: case-default
-    - include: access
-    - include: typedef
-    - include: keywords-parens
     - include: keywords
     - include: numbers
     - include: operators
-    # - include: string
-    - include: parens
     - include: parenthesis
-    - include: block
     - include: variables
-    - include: constants
     - match: ','
       scope: punctuation.separator.tmc
     - match: '\)|\}'
@@ -275,79 +259,14 @@ contexts:
           pop: true
         - include: expressions
 
-  access:
-    - match: '(\.)({{identifier}})(?!\s*\()'
-      captures:
-        1: punctuation.accessor.tmc
-        2: variable.other.member.tmc
-    - include: access-illegal
-    - match: \.(?!\.)
-      scope: punctuation.accessor.tmc
-
-  typedef:
-    - match: \btypedef\b
-      scope: storage.type.tmc
-      push:
-        - match: ({{identifier}})?\s*(?=;)
-          captures:
-            1: entity.name.type.typedef.tmc
-          pop: true
-        - match: \b(struct)\s+({{identifier}})
-          captures:
-            1: storage.type.tmc
-        - include: expressions
-
-  keywords-parens:
-    - match: '\b(sizeof)\b\s*(\()'
-      captures:
-        1: keyword.operator.word.tmc
-        2: meta.group.c punctuation.section.group.begin.tmc
-      push:
-        - meta_content_scope: meta.group.c
-        - match: '\)'
-          scope: meta.group.c punctuation.section.group.end.tmc
-          pop: true
-        - include: expressions
 
   numbers:
     - match: '\b((0(x|X)[0-9a-fA-F]*(\.[0-9a-fA-F]+p-?\d+)?)|(([0-9]+\.?[0-9]*)|(\.[0-9]+))((e|E)(\+|-)?[0-9]+)?)([fF]|(l{1,2}|L{1,2})[uU]?|[uU](l{0,2}|L{0,2}))?\b'
       scope: constant.numeric.tmc
 
-  parens:
-    - match: \(
-      scope: punctuation.section.group.begin.tmc
-      push:
-        - meta_scope: meta.group.tmc
-        - match: \)
-          scope: punctuation.section.group.end.tmc
-          pop: true
-        - include: expressions
-
-  block:
-    - match: '\{'
-      scope: punctuation.section.block.begin.tmc
-      push:
-        - meta_scope: meta.block.tmc
-        - match: (?=^\s*#\s*(elif|else|endif)\b)
-          pop: true
-        - match: '\}'
-          scope: punctuation.section.block.end.tmc
-          pop: true
-        - include: statements
-
   statements:
     - include: label
     - include: expressions
-
-  label:
-    - match: '^\s*((?!default){{identifier}})(:)(?!:)'
-      captures:
-        1: entity.name.label.c
-        2: punctuation.separator.c
-
-  constants:
-    - match: \b(__func__|NULL|true|false|TRUE|FALSE)\b
-      scope: constant.language.tmc
 
   variables:
     - match: '\bg[A-Z]\w*\b'
