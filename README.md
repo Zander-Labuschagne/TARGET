@@ -1,5 +1,7 @@
 # TARGET - Thrustmaster Advanced pRogramming Graphical EdiTor 
 
+ ![Package Control](https://img.shields.io/packagecontrol/dt/Target)
+
 Thrustmaster T.A.R.G.E.T. for Sublime Text 3 and 4.
 
 ## Features:
