@@ -141,6 +141,8 @@
 	{ "trigger": "APUOFF\tAPU Off(A10)", "contents": "APUOFF" },
 	{ "trigger": "IDLELON\tLeft Engine Idle On(A10)", "contents": "IDLELON" },
 	{ "trigger": "IDLERON\tRight Engine Idle On(A10)", "contents": "IDLERON" },
+	{ "trigger": "IDLELOFF\tLeft Engine Idle Off(A10)", "contents": "IDLELOFF" },
+	{ "trigger": "IDLEROFF\tRight Engine Idle Off(A10)", "contents": "IDLEROFF" },
 	{ "trigger": "CHF\tChina Hat Forward(A10)", "contents": "CHF" },
 	{ "trigger": "CHM\tChina Hat Middle(A10)", "contents": "CHM" },
 	{ "trigger": "CHB\tChina Hat Back(A10)", "contents": "CHB" },
