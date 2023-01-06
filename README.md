@@ -8,8 +8,6 @@ Thrustmaster T.A.R.G.E.T. for Sublime Text 3 and 4.
 * Syntax highlighting that is in my opinion an improvement over the proprietary editor, let me know if you don't agree and why.
 * Code completion using snippets that includes hints to help non-programmers their way around the language. Let me know if the hints/completions are a little too much.
 
-*PS: This is my first editor plugin/addon/package*
-
 ### Things I'd like to work on:
 * Improve syntax highlighting for user defined functions and variables. <-- Might try and copy from C syntax file.
 * USB keycode autocompletion? Maybe? What do you think?
